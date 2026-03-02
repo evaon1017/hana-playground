@@ -87,9 +87,7 @@ const checkAnswer = (question: Question, choice: number) => {
   <div :class="['mx-0 my-auto p-1', { 'shake-animation': globalShake }]">
     <div class="header-section text-center mb-5">
       <div class="add-btn-wrapper" @click="generateQuestion">
-        <img
-          src="/C:/Users/Evaon.Yang/.gemini/antigravity/brain/87c51621-ae2d-450d-bc6b-23376fbc3599/new_question_button_1772156944982.png"
-          alt="New Question" class="new-q-img">
+        <img src="@/assets/new_question_button_1772156944982.png" alt="New Question" class="new-q-img">
         <div class="hover-tip">點我出題！</div>
       </div>
     </div>
