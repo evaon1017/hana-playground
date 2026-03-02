@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { RouterView } from 'vue-router'
-import { useLoginUserStore } from './stores/loginUser'
+import { useIdentityStore } from './stores/useIdentityStore'
 import { compressImage } from '@/utils/imageUtils';
+import ScoreNotifyToast from './components/ScoreNotifyToast.vue';
 
 const isCollapsed = ref(false)
-const loginUserStore = useLoginUserStore()
+const identityStore = useIdentityStore()
 const toggleMenu = () => {
   isCollapsed.value = !isCollapsed.value
 }
@@ -16,7 +17,7 @@ const handleFileChange = async (event: Event) => {
   if (file) {
     try {
       const compressedImage = await compressImage(file, 100);
-      loginUserStore.setImagePath(compressedImage);
+      identityStore.setImagePath(compressedImage);
     } catch (error) {
       console.error('Image compression failed:', error);
     }
@@ -35,8 +36,8 @@ const handleFileChange = async (event: Event) => {
     </div>
     <div class="w-100">
       <div class="d-flex justify-content-center align-items-center border-bottom">
-        <div v-if="loginUserStore.imagePath">
-          <img :src="loginUserStore.imagePath" alt="" style="max-width: 200px; max-height: 200px; border-radius: 50%;"
+        <div v-if="identityStore.imagePath">
+          <img :src="identityStore.imagePath" alt="" style="max-width: 200px; max-height: 200px; border-radius: 50%;"
             data-bs-toggle="modal" data-bs-target="#identityModal">
         </div>
         <div v-else>
@@ -74,6 +75,7 @@ const handleFileChange = async (event: Event) => {
       </div>
     </div>
   </div>
+  <ScoreNotifyToast />
 </template>
 
 <style scoped>

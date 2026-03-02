@@ -1,5 +1,9 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { broadcastAnswer } from '@/services/messageService';
+import { useIdentityStore } from '@/stores/useIdentityStore';
+
+const store = useIdentityStore();
 
 interface Question {
   id: number
@@ -56,13 +60,20 @@ const generateQuestion = () => {
   })
 }
 
-const checkAnswer = (question: Question, choice: number) => {
+const checkAnswer = async (question: Question, choice: number) => {
   if (choice === question.answer) {
     question.isSolved = true
     question.wrongAttempt = false
     SuccessCounter.value++
     // Trigger celebration
-    showCelebration.value = true
+    showCelebration.value = true;
+    if (store.imagePath) {
+      await broadcastAnswer(
+        store.imagePath,   // 從 Pinia 拿那張 50x50 的小圖
+        question.num1 + ' + ' + question.num2 + ' = ' + question.answer,
+        'good'
+      );
+    }
     setTimeout(() => {
       showCelebration.value = false
       // Remove the question after fade out animation
@@ -75,6 +86,13 @@ const checkAnswer = (question: Question, choice: number) => {
     globalShake.value = true
     question.wrongAttempt = true
     ErrorCounter.value++;
+    if (store.imagePath) {
+      await broadcastAnswer(
+        store.imagePath,   // 從 Pinia 拿那張 50x50 的小圖
+        question.num1 + ' + ' + question.num2 + ' = ' + question.answer,
+        'bad'
+      );
+    }
     setTimeout(() => {
       globalShake.value = false
       question.wrongAttempt = false
@@ -96,7 +114,7 @@ const checkAnswer = (question: Question, choice: number) => {
       <span class="text-success">答對：{{ SuccessCounter }}</span>
       <span class="text-danger">答錯：{{ ErrorCounter }}</span>
       <span class="text-primary">總分：{{ Score }} </span>
-      <span class="badge bg-secondary rounded-pill badge-xs" title="每答對2提可以抵銷一個錯誤">?</span>
+      <span class="badge bg-secondary rounded-pill badge-xs" title="正確+1，答錯-1，每答對2題可以抵銷一個錯誤">?</span>
     </div>
 
     <TransitionGroup name="list" tag="div" class="questions-list">
