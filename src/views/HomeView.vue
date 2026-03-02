@@ -65,31 +65,28 @@ const checkAnswer = async (question: Question, choice: number) => {
     question.isSolved = true
     question.wrongAttempt = false
     SuccessCounter.value++
-    // Trigger celebration
     showCelebration.value = true;
     if (store.imagePath) {
       await broadcastAnswer(
-        store.imagePath,   // 從 Pinia 拿那張 50x50 的小圖
-        question.num1 + ' + ' + question.num2 + ' = ' + question.answer,
+        store.imagePath,
+        question.num1 + ' + ' + question.num2 + ' = ' + question.answer + ' (' + Score.value + '分)',
         'good'
       );
     }
     setTimeout(() => {
       showCelebration.value = false
-      // Remove the question after fade out animation
       setTimeout(() => {
         questions.value = questions.value.filter(q => q.id !== question.id)
       }, 800)
-    }, 2000)
+    }, 1500)
   } else {
-    // Trigger shake
     globalShake.value = true
     question.wrongAttempt = true
     ErrorCounter.value++;
     if (store.imagePath) {
       await broadcastAnswer(
-        store.imagePath,   // 從 Pinia 拿那張 50x50 的小圖
-        question.num1 + ' + ' + question.num2 + ' = ' + question.answer,
+        store.imagePath,
+        question.num1 + ' + ' + question.num2 + ' = ' + choice + ' (' + Score.value + '分)',
         'bad'
       );
     }
