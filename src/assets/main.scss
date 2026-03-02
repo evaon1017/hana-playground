@@ -1,0 +1,11 @@
+// src/assets/main.scss
+
+// 你可以在這裡覆蓋 Bootstrap 的變數 (必須在 import 前)
+// $primary: #007f7f; // 範例：改成醫護綠
+
+@import "bootstrap/scss/bootstrap";
+
+// 這裡寫你自己的全域樣式
+body {
+    background-color: #ee92e2;
+}
