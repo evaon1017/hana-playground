@@ -1,10 +1,26 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { RouterView } from 'vue-router'
+import { useLoginUserStore } from './stores/loginUser'
+import { compressImage } from '@/utils/imageUtils';
 
 const isCollapsed = ref(false)
+const loginUserStore = useLoginUserStore()
 const toggleMenu = () => {
   isCollapsed.value = !isCollapsed.value
+}
+
+const handleFileChange = async (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  const file = target.files?.[0];
+  if (file) {
+    try {
+      const compressedImage = await compressImage(file, 100);
+      loginUserStore.setImagePath(compressedImage);
+    } catch (error) {
+      console.error('Image compression failed:', error);
+    }
+  }
 }
 </script>
 
@@ -18,14 +34,54 @@ const toggleMenu = () => {
       </div>
     </div>
     <div class="w-100">
+      <div class="d-flex justify-content-center align-items-center border-bottom">
+        <div v-if="loginUserStore.imagePath">
+          <img :src="loginUserStore.imagePath" alt="" style="max-width: 200px; max-height: 200px; border-radius: 50%;"
+            data-bs-toggle="modal" data-bs-target="#identityModal">
+        </div>
+        <div v-else>
+          <button class="btn btn-primary d-flex align-items-center shadow-sm" data-bs-toggle="modal"
+            data-bs-target="#identityModal">
+            <span class="material-symbols-outlined me-2">person_add</span>
+          </button>
+        </div>
+      </div>
       <div class="px-3">
         <RouterView />
+      </div>
+    </div>
+  </div>
+  <div class="modal fade" id="identityModal" tabindex="-1" aria-labelledby="identityModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">你是誰？</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="d-flex justify-content-around">
+            <div class="row">
+              <div class="input-group">
+                <span class="input-group-text">挑個照片吧</span>
+                <input type="file" class="form-control" accept="image/*" @change="handleFileChange">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bs-dismiss="modal">我決定了</button>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
+.material-symbols-outlined {
+  font-size: 20px;
+  vertical-align: middle;
+}
+
 .main-menu {
   width: 200px;
   height: 100vh;
