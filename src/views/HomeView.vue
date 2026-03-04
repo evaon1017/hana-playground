@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted, nextTick } from 'vue'
 import { broadcastAnswer } from '@/services/messageService';
 import { useIdentityStore } from '@/stores/useIdentityStore';
+import * as bootstrap from 'bootstrap'
 
 const store = useIdentityStore();
 
@@ -17,6 +18,7 @@ interface Question {
 
 const questions = ref<Question[]>([])
 const nextId = ref(1)
+const finished = ref<number[]>([]);
 const showCelebration = ref(false)
 const globalShake = ref(false)
 const SuccessCounter = ref(0);
@@ -59,9 +61,10 @@ const generateQuestion = () => {
     wrongAttempt: false
   })
 }
-
 const checkAnswer = async (question: Question, choice: number) => {
   if (choice === question.answer) {
+    if (finished.value.includes(question.id)) return;
+    finished.value.push(question.id);
     question.isSolved = true
     question.wrongAttempt = false
     SuccessCounter.value++
@@ -72,6 +75,12 @@ const checkAnswer = async (question: Question, choice: number) => {
         question.num1 + ' + ' + question.num2 + ' = ' + question.answer + ' (' + Score.value + '分)',
         'good'
       );
+    }
+    if (SuccessCounter.value === 1) { // 第一次出現時初始化
+      nextTick(() => {
+        const el = document.querySelector('[data-bs-toggle="popover"]')
+        if (el) new bootstrap.Popover(el)
+      })
     }
     setTimeout(() => {
       showCelebration.value = false
@@ -96,6 +105,7 @@ const checkAnswer = async (question: Question, choice: number) => {
     }, 500)
   }
 }
+
 </script>
 
 <template>
@@ -106,12 +116,15 @@ const checkAnswer = async (question: Question, choice: number) => {
         <div class="hover-tip">點我出題！</div>
       </div>
     </div>
-    <div class="fs-3 d-flex gap-3 align-items-center justify-content-center"
-      v-if="SuccessCounter > 0 || ErrorCounter > 0">
-      <span class="text-success">答對：{{ SuccessCounter }}</span>
-      <span class="text-danger">答錯：{{ ErrorCounter }}</span>
-      <span class="text-primary">總分：{{ Score }} </span>
-      <span class="badge bg-secondary rounded-pill badge-xs" title="正確+1，答錯-1，每答對2題可以抵銷一個錯誤">?</span>
+    <div class="fs-3 position-relative" v-if="SuccessCounter > 0 || ErrorCounter > 0">
+      <div class="position-absolute top-50 start-50 translate-middle">
+        <div>
+          <span class="text-success">答對：{{ SuccessCounter }}</span>
+          <span class="text-danger">答錯：{{ ErrorCounter }}</span>
+          <span class="text-primary border border-primary rounded ms-2" data-bs-toggle="popover" title="總分怎麼算？"
+            data-bs-content="正確+1，答錯-1，每答對2題可以抵銷一個錯誤">總分：{{ Score }} </span>
+        </div>
+      </div>
     </div>
 
     <TransitionGroup name="list" tag="div" class="questions-list">
