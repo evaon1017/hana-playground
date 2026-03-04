@@ -110,20 +110,20 @@ const checkAnswer = async (question: Question, choice: number) => {
 
 <template>
   <div :class="['mx-0 my-auto p-1', { 'shake-animation': globalShake }]">
-    <div class="header-section text-center mb-5">
-      <div class="add-btn-wrapper" @click="generateQuestion">
-        <img src="@/assets/new_question_button_1772156944982.png" alt="New Question" class="new-q-img">
-        <div class="hover-tip">點我出題！</div>
-      </div>
-    </div>
-    <div class="fs-3 position-relative" v-if="SuccessCounter > 0 || ErrorCounter > 0">
-      <div class="position-absolute top-50 start-50 translate-middle">
+    <div class="fs-3 text-center mt-0 mb-3" v-if="SuccessCounter > 0 || ErrorCounter > 0">
+      <div class="">
         <div>
           <span class="text-success">答對：{{ SuccessCounter }}</span>
           <span class="text-danger">答錯：{{ ErrorCounter }}</span>
           <span class="text-primary border border-primary rounded ms-2" data-bs-toggle="popover" title="總分怎麼算？"
             data-bs-content="正確+1，答錯-1，每答對2題可以抵銷一個錯誤">總分：{{ Score }} </span>
         </div>
+      </div>
+    </div>
+    <div class="header-section text-center mb-2">
+      <div class="add-btn-wrapper" @click="generateQuestion">
+        <img src="@/assets/new_question_button_1772156944982.png" alt="New Question" class="new-q-img">
+        <div class="hover-tip">點我出題！</div>
       </div>
     </div>
 
