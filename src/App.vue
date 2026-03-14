@@ -29,9 +29,24 @@ const handleFileChange = async (event: Event) => {
   <div class="d-flex">
     <div :class="['main-menu d-inline-block', { 'collapsed': isCollapsed }]">
       <div class="menu-head">
-        <span v-if="!isCollapsed"><a href="/" class="text-decoration-none text-white fs-5">Hana Playground</a></span>
+        <span v-if="!isCollapsed"><a href="/" class="text-decoration-none text-white fs-5 fw-bold">Hana
+            Playground</a></span>
         <button @click="toggleMenu" class="btnMenuToogle btn btn-primary m-0">
           {{ isCollapsed ? '>' : '<' }} </button>
+      </div>
+
+      <!-- 選單項目區塊 -->
+      <div class="menu-items mt-3 d-flex flex-column gap-3 px-3">
+        <RouterLink to="/"
+          class="btn btn-light rounded-pill d-flex align-items-center justify-content-center fs-4 fw-bold shadow-sm"
+          style="white-space: nowrap;" title="兩個數字相加">
+          <span v-show="!isCollapsed">🍎 + 🍎</span>
+        </RouterLink>
+        <RouterLink to="/plus3"
+          class="btn btn-light rounded-pill d-flex align-items-center justify-content-center fs-4 fw-bold shadow-sm"
+          style="white-space: nowrap;" title="三個數字相加">
+          <span v-show="!isCollapsed">🍎+🍎+🍎</span>
+        </RouterLink>
       </div>
     </div>
     <div class="w-100">
