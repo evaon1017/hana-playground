@@ -44,7 +44,9 @@ const addNotification = (data: any) => {
                     <div class="toast-message">{{ notification.message }}</div>
                     <div class="toast-icon">
                         <img v-if="notification.icon === 'good'" src="@/assets/good.png" alt="Good">
-                        <img v-else src="@/assets/bad.jpg" alt="Bad">
+                        <img v-else-if="notification.icon === 'bad'" src="@/assets/bad.jpg" alt="Bad">
+                        <img v-else-if="notification.icon.startsWith('data:image/')" :src="notification.icon" alt="Custom" class="custom-toast-icon">
+                        <span v-else class="fs-4">{{ notification.icon }}</span>
                     </div>
                 </div>
             </div>
@@ -105,6 +107,14 @@ const addNotification = (data: any) => {
     height: 24px;
     width: auto;
     margin-top: 4px;
+}
+
+.toast-icon .custom-toast-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-top: 0;
 }
 
 /* Transition 效果 */
