@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+import * as bootstrap from 'bootstrap';
 import { useWaterStore } from '@/stores/useWaterStore';
 import { useIdentityStore } from '@/stores/useIdentityStore';
 import { addWaterLog, listenWaterLogs, removeWaterLog, type WaterLog } from '@/services/waterService';
@@ -14,6 +15,8 @@ const newIcon = ref('🥛');
 const newCc = ref<number>(250);
 const isLoading = ref(true);
 const iconFileInput = ref<HTMLInputElement | null>(null);
+const avatarModalRef = ref<HTMLElement | null>(null);
+let avatarModalInstance: bootstrap.Modal | null = null;
 
 const handleIconUpload = async (event: Event) => {
   const target = event.target as HTMLInputElement;
@@ -31,6 +34,14 @@ const handleIconUpload = async (event: Event) => {
 let unsubscribe: (() => void) | null = null;
 
 onMounted(() => {
+  if (!identityStore.userId && identityStore.imagePath) {
+    identityStore.generateUserId();
+  }
+
+  if (avatarModalRef.value) {
+    avatarModalInstance = new bootstrap.Modal(avatarModalRef.value);
+  }
+
   if (identityStore.userId) {
     unsubscribe = listenWaterLogs(identityStore.userId, (data) => {
       logs.value = data;
@@ -38,6 +49,17 @@ onMounted(() => {
     });
   } else {
     isLoading.value = false;
+  }
+});
+
+watch(() => identityStore.userId, (newId) => {
+  if (newId) {
+    if (unsubscribe) unsubscribe();
+    isLoading.value = true;
+    unsubscribe = listenWaterLogs(newId, (data) => {
+      logs.value = data;
+      isLoading.value = false;
+    });
   }
 });
 
@@ -59,6 +81,14 @@ const handleRemoveContainer = (id: string) => {
 const isRecording = ref(false);
 
 const recordWater = async (container: any) => {
+  if (!identityStore.userId) {
+    if (identityStore.imagePath) {
+      identityStore.generateUserId();
+    } else {
+      avatarModalInstance?.show();
+      return;
+    }
+  }
   if (!identityStore.userId) return;
   if (isRecording.value) return;
   
@@ -257,6 +287,30 @@ const formatTime = (ts: number) => {
         </div>
       </div>
     </div>
+    <!-- Avatar Prompt Modal -->
+    <div class="modal fade" id="avatarPromptModal" tabindex="-1" aria-hidden="true" ref="avatarModalRef">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+          <div class="modal-header bg-primary text-white border-bottom-0 pb-3">
+            <h5 class="modal-title fw-bold d-flex align-items-center">
+              <span class="material-symbols-outlined me-2">info</span>
+              溫馨提示
+            </h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body text-center pt-0 pb-4">
+            <div class="my-4">
+              <span class="material-symbols-outlined text-warning" style="font-size: 64px;">account_circle</span>
+            </div>
+            <h5 class="fw-bold mb-3">請先選擇您的頭像</h5>
+            <p class="text-muted mb-0">在開始記錄喝水之前，<br>請先在上方點擊「選擇頭像」來建立您的專屬身分喔！</p>
+          </div>
+          <div class="modal-footer border-top-0 justify-content-center pb-4">
+            <button type="button" class="btn btn-primary px-5 py-2 fw-bold shadow-sm rounded-pill" data-bs-dismiss="modal">我知道了</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -355,15 +409,10 @@ const formatTime = (ts: number) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  opacity: 0;
-  transform: scale(0.5) translate(-50%, -50%);
+  opacity: 1;
+  transform: translate(-50%, -50%);
   transition: all 0.2s;
   z-index: 2;
-}
-
-.container-btn-wrapper:hover .delete-btn {
-  opacity: 1;
-  transform: scale(1) translate(-50%, -50%);
 }
 
 /* 14 Days Chart */

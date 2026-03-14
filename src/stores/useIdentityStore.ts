@@ -17,7 +17,13 @@ export const useIdentityStore = defineStore('identity', () => {
     userId.value = ''
   }
 
-  return { imagePath, userId, setImagePath, clearUser }
+  function generateUserId() {
+    if (!userId.value) {
+      userId.value = crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2, 15)
+    }
+  }
+
+  return { imagePath, userId, setImagePath, clearUser, generateUserId }
 }, {
   persist: true
 })

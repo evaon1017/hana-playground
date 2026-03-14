@@ -1,0 +1,11 @@
+{
+  "rules": {
+    ".read": "true",
+    ".write": "true",
+    "water_logs": {
+      "$userId": {
+        ".indexOn": ["timestamp"]
+      }
+    }
+  }
+}
